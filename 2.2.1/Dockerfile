@@ -45,10 +45,14 @@ COPY start-connect.sh $KAFKA_HOME/start-connect.sh
 
 # Install jar plugin
 # create the dir
-RUN mkdir -p /usr/local/share/kafka/plugins
-# copy file
-COPY jdbc-kafka-connector.jar /usr/local/share/kafka/plugins/jdbc-kafka-connector.jar
-COPY connect-jdbc-sink.properties config/connect-jdbc-sink.properties
+#RUN mkdir -p $KAFKA_HOME/plugins
+#RUN mkdir -p /usr/local/share/kafka/plugins
+# copy files
+#COPY jdbc-kafka-connector.jar /usr/local/share/kafka/plugins/jdbc-kafka-connector.jar
+#COPY aaa.txt $KAFKA_HOME/plugins/aaa.txt
+COPY connect-jdbc-sink.properties $KAFKA_HOME/config/connect-jdbc-sink.properties
+COPY connect-standalone.properties $KAFKA_HOME/config/connect-standalone.properties
+COPY connect-distributed.properties $KAFKA_HOME/config/connect-distributed.properties
 COPY docker-entrypoint.sh /
 ENTRYPOINT ["/docker-entrypoint.sh"]
 
