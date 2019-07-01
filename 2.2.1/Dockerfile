@@ -51,6 +51,7 @@ COPY start-connect.sh $KAFKA_HOME/start-connect.sh
 #COPY jdbc-kafka-connector.jar /usr/local/share/kafka/plugins/jdbc-kafka-connector.jar
 #COPY aaa.txt $KAFKA_HOME/plugins/aaa.txt
 COPY connect-jdbc-sink.properties $KAFKA_HOME/config/connect-jdbc-sink.properties
+COPY connect-jdbc-source.properties $KAFKA_HOME/config/connect-jdbc-source.properties
 COPY connect-standalone.properties $KAFKA_HOME/config/connect-standalone.properties
 COPY connect-distributed.properties $KAFKA_HOME/config/connect-distributed.properties
 COPY docker-entrypoint.sh /

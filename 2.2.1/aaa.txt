@@ -1,4 +1,3 @@
-aaaaaa
-bbbbbb
+
 
 docker run -it .\start-kafka-shell.sh localhost zk:2181

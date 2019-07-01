@@ -1,0 +1,103 @@
+Inizialmente ho cercato di capire cosa fosse kafka.
+Ho utilizzato Docker.
+Fatto partire Zookeeper e Kafka.
+Poi ho saputo che in SNAM viene utilizzato Openshift.
+Per poter connettersi a un db, è necessario Kafka Connect e un connettore (un jar) - 
+Si puo' utilizzare qualcosa scritto dalla comunity (o da aziende tipo Confluent).
+Oppure scriverselo autonomamente.
+
+Installato minishift in locale.
+
+Problemi con IP su minishift (07/06/2019)
+
+Tentativo di switchare su docker (e di installare, dopo sviluppo, il jar li').
+
+netsh winhttp set proxy proxy.browse.sistinf.it:3128
+netsh winhttp reset proxy 
+
+C:\Projects\docker-kafka-connect\2.2.1
+
+----
+------------bash on docker container
+docker exec -it 221_connect_1 /bin/bash
+
+# A non-default bridge network enables convenient name-to-hostname discovery
+$ docker network create kafka-net
+
+$ docker run -d --name zookeeper --network kafka-net zookeeper:3.4
+$ docker run -d --name kafka --network kafka-net --env ZOOKEEPER_IP=zookeeper docker-kafka-my:latest
+
+docker run --rm --network kafka-net docker-kafka-my kafka-topics.sh --create --topic test --replication-factor 1 --partitions 1 --zookeeper zookeeper:2181
+
+!!! Occorre anche configurare il path dove vengono posizionati i connettori
+connect-standalone.properties
+------------------------ con il docker-kafka-connect compose questi cmd funzionano
+--topic
+-- docker run --rm --network kafka-net docker-kafka-my kafka-topics.sh --create --topic test --replication-factor 1 --partitions 1 --zookeeper zookeeper:2181
+>> ok << 
+docker run --rm --network 221_default ches/kafka kafka-topics.sh --create --topic topic-test --replication-factor 1 --partitions 1 --zookeeper zk:2181/broker-0
+
+--producer
+docker run --rm --interactive --network kafka-net docker-kafka-my kafka-console-producer.sh --topic test --broker-list kafka:9092
+>> ok << 
+docker run --rm --interactive --network 221_default ches/kafka kafka-console-producer.sh --topic topic-test --broker-list kafka:9092
+
+--consumer
+docker run --rm --network kafka-net ches/kafka kafka-console-consumer.sh --topic test --from-beginning --bootstrap-server kafka:9092
+>> ok << docker run --rm --network 221_default ches/kafka kafka-console-consumer.sh --topic topic-test --from-beginning --bootstrap-server kafka:9092
+
+//per verificare se carica qualche connettore
+
+http://localhost:8083
+
+GET /connectors – returns a list with all connectors in use
+GET /connectors/{name} – returns details about a specific connector
+POST /connectors – creates a new connector; the request body should be a JSON object containing a string name field and an object config field with the connector configuration parameters
+GET /connectors/{name}/status – returns the current status of the connector – including if it is running, failed or paused – which worker it is assigned to, error information if it has failed, and the state of all its tasks
+DELETE /connectors/{name} – deletes a connector, gracefully stopping all tasks and deleting its configuration
+GET /connector-plugins – returns a list of connector plugins installed in the Kafka Connect cluster
+--------------------------------
+directory docker-kafka (da ches)
+
+creazione di un'immagine docker
+docker-kafka-my
+
+---occorre mettere il nickname
+docker build -t linlo73/docker-kafka-my:latest .
+
+
+--- ricordarsi di cambiare il LF dei file se compilati su win
+
+docker build -t docker-kafka-my:latest .
+
+docker run --rm --network kafka-net mykafka_kafka kafka-topics.sh --create --topic test --replication-factor 1 --partitions 1 --zookeeper mykafka_zookeeper_1:2181
+
+------------------------------
+git add .
+git commit -m "add jar and config file"
+git push origin master
+
+docker build -t docker-kafka-connect-my:latest .
+
+docker-compose up -d
+docker-compose down
+docker-compose build
+----------------------
+mysql 
+docker run --name mysql-container -e MYSQL_ROOT_PASSWORD=adm -d mysql
+
+start a shell
+docker exec -it mysql-container bash
+
+mysql -u root -p
+
+create database test;
+use test;
+CREATE TABLE tbtest(
+    task_id INT NOT NULL AUTO_INCREMENT,
+	descr VARCHAR(255) NOT NULL,
+	PRIMARY KEY (task_id)
+	);
+
+insert into tbtest (descr) values ('primo valore');
+insert into tbtest (descr) values ('secondo valore');
